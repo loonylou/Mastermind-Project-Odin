@@ -3,3 +3,6 @@
 
 # Thumbnails
 ._*
+
+# VS Code
+.vscode/*
