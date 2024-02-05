@@ -18,3 +18,4 @@ Code Breaker can input duplicates but not blanks
 
 # Versions
 V1: Computer randomly creates the 4 digit secret code
+V2: Player can choose to be code breaker or code maker
