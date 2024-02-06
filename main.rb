@@ -4,6 +4,8 @@
 
 # V2: Refactor your code to allow the human player to choose whether they want to be the creator of the secret code or the guesser.Build it out so that the computer will guess if you decide to choose your own secret colors. You may choose to implement a computer strategy that follows the rules of the game or you can modify these rules.
 
+# V3: Start by having the computer guess randomly, but keep the ones that match exactly.
+
 require_relative('Game.rb')
 require_relative('Player.rb')
 

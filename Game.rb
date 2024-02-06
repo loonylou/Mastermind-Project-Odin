@@ -86,8 +86,7 @@ class Game
 
   def request_guess_code()
     if @players[0].role == "B"
-      guess = ("1".."9").to_a.shuffle.slice(0,4)
-      check_guess(guess)
+      generate_computer_guess()
     else
       puts "Enter your 4 digit guess."
       guess = gets.chomp.split("")
@@ -99,6 +98,26 @@ class Game
         request_guess_code()
       end
     end 
+  end
+
+  def generate_computer_guess()
+    if @guesses.length > 0
+      last_entry = @guesses[@guesses.length - 1]['result']
+
+      guess = []
+
+      last_entry.each_with_index do |v, i|
+        if v == "0" || v == "?"
+          guess[i] = rand(1..9).to_s
+        else
+          guess[i] = v
+        end
+      end
+    else
+      guess = ("1".."9").to_a.shuffle.slice(0,4)
+    end
+    
+    check_guess(guess)
   end
 
   def validate_code(code, type) # Type s = secret & g = guess
