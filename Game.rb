@@ -10,38 +10,58 @@ class Game
     @secret = Array.new(4, "0")
     
     self.setup_game
-    self.setup_code
+    self.setup_secret_code
+    puts 'secret: ' + @secret.to_s # testing
     self.game_play
   end
 
   def setup_game()
     puts "Welcome to Mastermind!"
     puts "\n"
-    ### For V2
-    # puts "Please enter the Code Maker's name:"
-    # codemaker = Player.new(gets.chomp.capitalize, "M", false)
-    # codemaker = Player.new("Computer", "M", false)
-    # @players << codemaker
-    # puts "\n"
-    puts "Please enter your name:"
-    codebreaker = Player.new(gets.chomp.capitalize, "B", true)
-    @players << codebreaker
+    puts "Which role do you want to play as?"
+    puts "Code Maker - type 1"
+    puts "Code Breaker - type 2"
+    role = gets.chomp
+
+    if role == "1"
+      puts "Welcome Code Maker. Please enter your name:"
+      codebreaker = Player.new("Computer", "M", false)
+      codemaker = Player.new(gets.chomp.capitalize, "B", true)
+      @players << codemaker
+      @players << codebreaker
+    else
+      human_role = "B"
+      computer_role = "H"
+      puts "Welcome Code Breaker. Please enter your name:"
+      codemaker = Player.new("Computer", "M", false) 
+      codebreaker = Player.new(gets.chomp.capitalize, "B", true)
+      @players << codemaker
+      @players << codebreaker
+    end
+
     puts "\n"
-    ### For V2
-    # puts "Welcome Code Maker #{codemaker.name} and Code Breaker #{codebreaker.name}!"
-    puts "Welcome Code Breaker #{codebreaker.name}!"
+    puts "Welcome Code Maker #{codemaker.name} and Code Breaker #{codebreaker.name}!"
     puts "\n"
     puts "In this game only the digits 1 - 9 are used. There are no duplicates & no blanks."
-    # # # >>>>>> Easier Testing
-    # codemaker = Player.new("Computer", "M", false)
-    # @players << codemaker
-    # codebreaker = Player.new("Breaker", "B", true)
-    # @players << codebreaker
+    puts "\n"
   end
 
-  def setup_code
-    @secret = ("1".."9").to_a.shuffle.slice(0,4)
-  end
+  def setup_secret_code
+    if players[0].role == "M"
+      @secret = ("1".."9").to_a.shuffle.slice(0,4)
+    else
+      puts "Please enter your secret code. It should be 4 digits from 1 to 9 only. Blanks are not allowed. Duplicates are not allowed."
+      puts "\n"
+      human_code = gets.chomp.split("")
+      if validate_code(human_code, 's') == true
+        @secret = human_code 
+      else 
+        puts "Error! Try again!"
+        puts "\n"
+        self.setup_secret_code
+      end
+    end
+  end 
 
   def draw_board
     puts "\n"
@@ -60,25 +80,37 @@ class Game
   def game_play
     while @turn_no < 12 do
       self.draw_board
-      self.request_guess
+      self.request_guess_code
       @turn_no += 1
     end
 
     puts "Game over. You lose!" if @turn_no == 12 
   end
 
-  def request_guess
+  def request_guess_code
     puts "Enter your 4 digit guess."
     guess = gets.chomp.split("")
-    validate_guess(guess)
+
+    if validate_code(guess, 'g') == true 
+      check_guess(guess)
+    else
+      puts "Error! Codes are 4 digits from 1 to 9. Try again!"
+      self.request_guess_code
+    end
   end
 
-  def validate_guess(guess)
-    if guess.filter { |x| x.match?(/[1-9]/) }.length != 4
-      puts "Check your guess. It should be 4 digits from 1 to 9 only. Try again!"
-      self.request_guess
+  # Type s = secret & g = guess
+  def validate_code(code, type)
+    length_nums_blank_check = code.filter { |x| x.match?(/[1-9]/) }.length
+
+    if length_nums_blank_check == 4 
+      if type == "g" # guess
+        return true
+      else # secret
+        code.uniq.length == 4 ? true : false
+      end
     else
-      check_guess(guess)
+      return false
     end
   end
 
