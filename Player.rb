@@ -1,12 +1,11 @@
 class Player
-    attr_accessor :name, :role, :human
+    attr_accessor :name, :role
   
     @@all = []
   
-    def initialize (name, role, human)
+    def initialize (name, role)
       @name = name
       @role = role
-      @human = human
       @@all << self
     end
   

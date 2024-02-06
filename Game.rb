@@ -1,9 +1,7 @@
 require_relative('Player.rb')
 
 class Game
-  attr_accessor :players
-
-  def initialize ()
+  def initialize()
     @players = []
     @guesses = []
     @turn_no = 0
@@ -11,11 +9,12 @@ class Game
     
     self.setup_game
     self.setup_secret_code
-    puts 'secret: ' + @secret.to_s # testing
+    # puts 'secret: ' + @secret.to_s # testing
     self.game_play
   end
 
   def setup_game()
+    puts "**********************"
     puts "Welcome to Mastermind!"
     puts "\n"
     puts "Which role do you want to play as?"
@@ -25,16 +24,14 @@ class Game
 
     if role == "1"
       puts "Welcome Code Maker. Please enter your name:"
-      codebreaker = Player.new("Computer", "M", false)
-      codemaker = Player.new(gets.chomp.capitalize, "B", true)
-      @players << codemaker
+      codebreaker = Player.new("Computer", "B")
+      codemaker = Player.new(gets.chomp.capitalize, "M")
       @players << codebreaker
+      @players << codemaker
     else
-      human_role = "B"
-      computer_role = "H"
       puts "Welcome Code Breaker. Please enter your name:"
-      codemaker = Player.new("Computer", "M", false) 
-      codebreaker = Player.new(gets.chomp.capitalize, "B", true)
+      codemaker = Player.new("Computer", "M") 
+      codebreaker = Player.new(gets.chomp.capitalize, "B")
       @players << codemaker
       @players << codebreaker
     end
@@ -46,8 +43,8 @@ class Game
     puts "\n"
   end
 
-  def setup_secret_code
-    if players[0].role == "M"
+  def setup_secret_code()
+    if @players[0].role == "M"
       @secret = ("1".."9").to_a.shuffle.slice(0,4)
     else
       puts "Please enter your secret code. It should be 4 digits from 1 to 9 only. Blanks are not allowed. Duplicates are not allowed."
@@ -63,7 +60,7 @@ class Game
     end
   end 
 
-  def draw_board
+  def draw_board()
     puts "\n"
     puts "**** MASTERMIND ****"
     puts "\n"
@@ -77,30 +74,34 @@ class Game
     puts "\n"
   end
 
-  def game_play
+  def game_play()
     while @turn_no < 12 do
-      self.draw_board
-      self.request_guess_code
+      draw_board()
+      request_guess_code()
       @turn_no += 1
     end
 
-    puts "Game over. You lose!" if @turn_no == 12 
+    breaker_loses_game() if @turn_no == 12 
   end
 
-  def request_guess_code
-    puts "Enter your 4 digit guess."
-    guess = gets.chomp.split("")
-
-    if validate_code(guess, 'g') == true 
+  def request_guess_code()
+    if @players[0].role == "B"
+      guess = ("1".."9").to_a.shuffle.slice(0,4)
       check_guess(guess)
     else
-      puts "Error! Codes are 4 digits from 1 to 9. Try again!"
-      self.request_guess_code
-    end
+      puts "Enter your 4 digit guess."
+      guess = gets.chomp.split("")
+
+      if validate_code(guess, 'g') == true 
+        check_guess(guess)
+      else
+        puts "Error! Codes are 4 digits from 1 to 9. Try again!"
+        request_guess_code()
+      end
+    end 
   end
 
-  # Type s = secret & g = guess
-  def validate_code(code, type)
+  def validate_code(code, type) # Type s = secret & g = guess
     length_nums_blank_check = code.filter { |x| x.match?(/[1-9]/) }.length
 
     if length_nums_blank_check == 4 
@@ -114,11 +115,9 @@ class Game
     end
   end
 
-  private 
-  def check_guess(guess)
-    if guess == @secret 
-      puts "You Win!"
-      exit
+  private def check_guess(guess)
+    if guess == @secret
+      breaker_wins_game()
     else 
       result = guess.map.with_index do |v, i|
         @secret.include?(v) ? v == @secret[i] ? v : "?" : "0"  
@@ -127,6 +126,26 @@ class Game
         "guess" => guess,
         "result" => result
       }
+    end
+  end
+
+  private def breaker_wins_game() 
+    if @players[1].role == "B"
+      puts "Congratulations " + @players[1].name + "! You beat the Computer."
+      exit
+    else
+      puts @players[1].name + ' you have been beaten by the Computer. Better luck next time!'
+      exit
+    end
+  end
+
+  private def breaker_loses_game() 
+    if @players[1].role == "B"
+      puts @players[1].name + ' you have been beaten by the Computer. Better luck next time!'
+      exit
+    else
+      puts "Congratulations " + @players[1].name + "! You beat the Computer."
+      exit
     end
   end
   
